@@ -1,8 +1,8 @@
 import React from 'react'
+import '@src/index.css'
 import ReactDOM from 'react-dom/client'
 import App from '@src/App'
 import { Clipboard } from '@app/Clipboard'
-console.log('app1')
 const App1 = () => {
 	return (
 		<div>
@@ -13,6 +13,7 @@ const App1 = () => {
 		</div>
 	)
 }
+
 const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement)
 root.render(
 	<React.StrictMode>

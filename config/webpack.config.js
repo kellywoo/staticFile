@@ -10,7 +10,7 @@ const InlineChunkHtmlPlugin = require('react-dev-utils/InlineChunkHtmlPlugin')
 const TerserPlugin = require('terser-webpack-plugin')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const CssMinimizerPlugin = require('css-minimizer-webpack-plugin')
-const { WebpackManifestPlugin } = require('webpack-manifest-plugin')
+// const { WebpackManifestPlugin } = require('webpack-manifest-plugin')
 const InterpolateHtmlPlugin = require('react-dev-utils/InterpolateHtmlPlugin')
 const WorkboxWebpackPlugin = require('workbox-webpack-plugin')
 const ModuleScopePlugin = require('react-dev-utils/ModuleScopePlugin')
@@ -26,7 +26,7 @@ const ForkTsCheckerWebpackPlugin =
 		? require('react-dev-utils/ForkTsCheckerWarningWebpackPlugin')
 		: require('react-dev-utils/ForkTsCheckerWebpackPlugin')
 const ReactRefreshWebpackPlugin = require('@pmmmwh/react-refresh-webpack-plugin')
-
+const templateOption = require('./app/templateOption')
 const createEnvironmentHash = require('./webpack/persistentCache/createEnvironmentHash')
 
 // Source maps are resource heavy and can cause out of memory issue for large source files.
@@ -49,7 +49,6 @@ const babelRuntimeRegenerator = require.resolve('@babel/runtime/regenerator', {
 // makes for a smoother build process.
 const shouldInlineRuntimeChunk = process.env.INLINE_RUNTIME_CHUNK !== 'false'
 const entries = require('./app/entires')
-const webpackEntry = { main: paths.appIndexJs, ...entries }
 const emitErrorsAsWarnings = process.env.ESLINT_NO_DEV_ERRORS === 'true'
 const disableESLintPlugin = process.env.DISABLE_ESLINT_PLUGIN === 'true'
 const alias = require('./alias')
@@ -195,7 +194,7 @@ module.exports = function (webpackEnv) {
 			: isEnvDevelopment && 'cheap-module-source-map',
 		// These are the "entry points" to our application.
 		// This means they will be the "root" imports that are included in JS bundle.
-		entry: webpackEntry,
+		entry: { shared: ['react', 'react-dom'], ...entries },
 		output: {
 			// The build folder.
 			path: paths.appBuild,
@@ -536,7 +535,7 @@ module.exports = function (webpackEnv) {
 			].filter(Boolean),
 		},
 		plugins: [
-			...Object.keys(webpackEntry).map((name) => {
+			...Object.keys(entries).map((name) => {
 				return new HtmlWebpackPlugin(
 					Object.assign(
 						{},
@@ -545,6 +544,7 @@ module.exports = function (webpackEnv) {
 							templateContent: templateGenerator,
 							filename: (name === 'main' ? 'index' : name) + '.html',
 							name: name,
+							...templateOption,
 						},
 						isEnvProduction
 							? {
