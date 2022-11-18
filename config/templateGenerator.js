@@ -1,27 +1,32 @@
 module.exports = ({ htmlWebpackPlugin }) => {
-	const publicPath = htmlWebpackPlugin.files.publicPath.replace(/\/$/, '')
-	const name = htmlWebpackPlugin.options.name
-	let styleLinkCss = `<link href="${publicPath}/static/${name}.css" rel="stylesheet"/>`
-	if (!htmlWebpackPlugin.files.css.includes(`${publicPath}/static/${name}.css`)) {
-		styleLinkCss = ''
-	}
+  const types = {
+    meta: [],
+    link: [],
+    script: [],
+    base: [],
+    rest: []
+  }
+  htmlWebpackPlugin.tags.headTags.forEach(v => {
+    const { tagName } = v
+    const group = types[tagName] ||types.rest
+    group.push(v.toString())
+  })
+
 	return `<!DOCTYPE html>
 <html>
   <head>
-    <base href="${publicPath}"/>
-    <meta charset="utf-8" />
-    <link rel="icon" href="/favicon.ico" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#000000" />
+    ${types.base[0] || ''}
+    ${types.meta.join('')}
+    <title>${htmlWebpackPlugin.options.title}</title>
+    ${types.rest.join('')}
+    ${types.link.join('')}
     ${htmlWebpackPlugin.options.head || ''}
-    ${styleLinkCss}
-    <title>React App</title>
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
     <div id="root"></div>
-    <script src="/static/js/shared.js"></script>
-    <script defer src="/static/js/${name}.js"></script>
+    ${types.script.join('')}
+    ${htmlWebpackPlugin.tags.bodyTags}
     ${htmlWebpackPlugin.options.body || ''}
   </body>
 </html>

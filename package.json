@@ -147,6 +147,7 @@
     ]
   },
   "devDependencies": {
+    "@babel/parser": "^7.20.3",
     "@types/styled-components": "^5.1.26"
   }
 }

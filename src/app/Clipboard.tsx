@@ -4,6 +4,12 @@ import styled from 'styled-components'
 
 const Button = styled.button`
 	text-align: left;
+	background-color: purple;
+	border: none;
+	border: 1px solid #fff;
+	color: #fff;
+	border-radius: 5px;
+	padding: 10px;
 `
 export const Clipboard = ({
 	children,
@@ -19,11 +25,8 @@ export const Clipboard = ({
 	errorMessage?: string
 	isLink?: boolean
 }>) => {
-	const successMsg = isLink ? '@gt.toast.copy.success' : successMessage || '@gt.common.toast.copied'
-	const errorMsg = isLink ? '@gt.toast.copy.error' : errorMessage || '@gt.common.toast.fail_to_copy'
 	const onClick = useCallback(() => {
 		const done = copyToClipboard(text)
-		// toast(t(done ? successMsg : errorMsg))
 	}, [text])
 	return (
 		<Button onClick={onClick} className={className} data-action-id={'copy'}>

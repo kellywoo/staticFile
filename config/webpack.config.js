@@ -48,7 +48,7 @@ const babelRuntimeRegenerator = require.resolve('@babel/runtime/regenerator', {
 // Some apps do not need the benefits of saving a web request, so not inlining the chunk
 // makes for a smoother build process.
 const shouldInlineRuntimeChunk = process.env.INLINE_RUNTIME_CHUNK !== 'false'
-const entries = require('./app/entires')
+const readEntries = require('./app/entires')
 const emitErrorsAsWarnings = process.env.ESLINT_NO_DEV_ERRORS === 'true'
 const disableESLintPlugin = process.env.DISABLE_ESLINT_PLUGIN === 'true'
 const alias = require('./alias')
@@ -82,6 +82,7 @@ const hasJsxRuntime = (() => {
 	}
 })()
 
+
 // This is the production and development configuration.
 // It is focused on developer experience, fast rebuilds, and a minimal bundle.
 module.exports = function (webpackEnv) {
@@ -97,7 +98,7 @@ module.exports = function (webpackEnv) {
 	// Omit trailing slash as %PUBLIC_URL%/xyz looks better than %PUBLIC_URL%xyz.
 	// Get environment variables to inject into our app.
 	const env = getClientEnvironment(paths.publicUrlOrPath.slice(0, -1))
-
+	const baseUrl = (env.raw.PUBLIC_URL || '/').replace(/\/$/, '') + '/'
 	const shouldUseReactRefresh = env.raw.FAST_REFRESH
 
 	// common function to get style loaders
@@ -179,7 +180,7 @@ module.exports = function (webpackEnv) {
 		}
 		return loaders
 	}
-
+	const entries = readEntries()
 	return {
 		target: ['browserslist'],
 		// Webpack noise constrained to errors and warnings
@@ -194,7 +195,7 @@ module.exports = function (webpackEnv) {
 			: isEnvDevelopment && 'cheap-module-source-map',
 		// These are the "entry points" to our application.
 		// This means they will be the "root" imports that are included in JS bundle.
-		entry: { shared: ['react', 'react-dom'], ...entries },
+		entry: { vendor: ['react', 'react-dom'], ...entries },
 		output: {
 			// The build folder.
 			path: paths.appBuild,
@@ -541,10 +542,13 @@ module.exports = function (webpackEnv) {
 						{},
 						{
 							inject: false,
+							base: baseUrl,
 							templateContent: templateGenerator,
 							filename: (name === 'main' ? 'index' : name) + '.html',
+							chunks: [name, 'vendor'],
 							name: name,
-							...templateOption,
+							...templateOption.common,
+							...(templateOption[name] || {})
 						},
 						isEnvProduction
 							? {
